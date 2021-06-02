@@ -41,6 +41,13 @@ resource "azurerm_public_ip" "pip" {
 
 }
 
+resource "azurerm_ssh_public_key" "sshkey" {
+  name                = "linuxserver-key"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = "East US"
+  public_key          = file("~/.ssh/id_rsa.pub")
+}
+
 resource "azurerm_network_security_group" "nsg" {
   name                = "linuxvmSecurityGroup"
   location            = azurerm_resource_group.rg.location
@@ -106,7 +113,7 @@ resource "azurerm_linux_virtual_machine" "lvm" {
 
   admin_ssh_key {
     username   = "sudoer"
-    public_key = file("~/.ssh/id_rsa.pub")
+    public_key = azurerm_ssh_public_key.sshkey.public_key
   }
 
   os_disk {
