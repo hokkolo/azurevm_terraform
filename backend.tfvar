@@ -1,0 +1,5 @@
+resource_group_name = "tf_backend"
+storage_account_name = "tbbackend1994"
+container_name = "tfstate"
+access_key = "Ek5Z2eOIVXmbLdmWc8J0o6nzV74Pr3fMWh/adDuppKwUsEJfBpgA56gEU1OuMX/bEOkDy7Nbt4Ol43HTJrH5Dw=="
+key = "terraform.tfstate"
