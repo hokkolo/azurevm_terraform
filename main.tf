@@ -74,10 +74,6 @@ resource "azurerm_virtual_network" "vn" {
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  subnet {
-    name           = "subnetforvm"
-    address_prefix = "10.0.1.0/24"
-  }
 }
 
 resource "azurerm_subnet" "sub" {
@@ -88,27 +84,26 @@ resource "azurerm_subnet" "sub" {
 }
 
 resource "azurerm_network_interface" "ni" {
-  name                = "linuxvm-nic"
+  count = 2
+  name                = "linuxvm-nic${count.index}"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
     name                          = "internal"
-    public_ip_address_id          = azurerm_public_ip.pip.id
     subnet_id                     = azurerm_subnet.sub.id
     private_ip_address_allocation = "Dynamic"
   }
 }
 
 resource "azurerm_linux_virtual_machine" "lvm" {
-  name                = "linux-testserver"
+  count               = 2
+  name                = "linux-testserver${count.index}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   size                = "Standard_B1S"
   admin_username      = "sudoer"
-  network_interface_ids = [
-    azurerm_network_interface.ni.id,
-  ]
+  network_interface_ids = [ element(azurerm_network_interface.ni.*.id, count.index)  ]
 
   admin_ssh_key {
     username   = "sudoer"
@@ -116,6 +111,7 @@ resource "azurerm_linux_virtual_machine" "lvm" {
   }
 
   os_disk {
+    name = "osdisk${count.index}"
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
